@@ -10,6 +10,10 @@ const userSchema = new Schema({
         type : String,
         require : true,
     },
+    password : {
+        type : String,
+        require : true,
+    },
     profilePic : {
         type : String,
         // require : true,
@@ -20,6 +24,9 @@ const userSchema = new Schema({
     contact : {
         type : String,
     },
+    roll : {
+        type : String,   // user , admin
+    }
 }) ;
 const UserModal =  model("UserModal",userSchema);
 module.exports = UserModal;
