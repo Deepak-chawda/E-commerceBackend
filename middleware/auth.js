@@ -6,12 +6,15 @@ const jwt = require("jsonwebtoken");
 const auth = async (req, res, next) => {
   // middleware function
   try {
-    const token = req.header("Authorization").replace("Bearer", "");
+    const token = req.header("Authorization").replace("Bearer ", "");
+    
     if (!token) {
       const error = "Invalid authorization token";
       res.json({ error, code: 400 });
     }
-    const decoded = await jwt.verify(token, process.env.SECRET_KEY);
+    // console.log(token)
+    const decoded = await jwt.verify(token , process.env.SECRET_KEY);
+    // console.log(decoded)
     const user = await User.findOne({ _id: decoded._id });
     if (!user) {
       const error = "Invalid user !";
@@ -21,9 +24,9 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.log("error ", error);
-    const error = "Acess denied!";
-    res.json({ error, code: 401 });
+    console.log("error=> ", error);
+    const msg = "Access denied!";
+    res.json({ msg, code: 401 });
   }
 };
 module.exports = auth;

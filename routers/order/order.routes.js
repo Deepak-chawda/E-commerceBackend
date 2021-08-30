@@ -1,14 +1,21 @@
-// here require router method from express 
+// here require router method from express
 const router = require("express").Router();
 
-// require  all controller here  as a object 
-const { placeOrderController }=require ("../../controller/order/order.controller")
-const auth = require("../../middleware/auth")
+// require  all controller here  as a object
+const {
+  getOrderController,
+  addOrderController,
+  // updateOrderController,
+  deleteOrderController,
+} = require("../../controller/order/order.controller");
+const auth = require("../../middleware/auth");
 
-// sigin  user router 
-router.post("/api/place/order" , auth, placeOrderController);
+// user order router
 
-
+router.get("/api/get/order", auth, getOrderController);
+router.post("/api/add/order", auth, addOrderController);
+// router.put("/api/update/order", auth, updateOrderController);
+router.delete("/api/delete/order", auth, deleteOrderController);
 
 // here exports all router for using other place
 module.exports = router;

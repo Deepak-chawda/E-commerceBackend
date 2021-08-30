@@ -7,7 +7,7 @@ const orderSchema = new Schema({
       ref : "productModel"
   },
   orderDate : {
-      type : Data,
+      type : Date,
   },
   transactionId : {
       type : String,

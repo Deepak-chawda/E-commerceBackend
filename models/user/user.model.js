@@ -4,7 +4,7 @@ const userSchema = new Schema({
     userName : {
         type : String,
         trim : true,
-        require : true,
+        // require : true,
     },
     email : {
         type : String,
@@ -24,7 +24,7 @@ const userSchema = new Schema({
     contact : {
         type : String,
     },
-    roll : {
+    role : {
         type : String,   // user , admin
     }
 }) ;
