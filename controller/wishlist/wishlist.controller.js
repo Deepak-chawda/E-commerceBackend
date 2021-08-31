@@ -4,7 +4,7 @@ const wishlistModel = require("../../models/wishlist/wishlist.model")
 exports.getWishlistController= async (req,res)=>{
     const userId = req.user._id
     try {
-        const findedWishlist = await wishlistModel.findOne({user : userId})
+        const findedWishlist = await wishlistModel.find({user : userId})
         if(!findedWishlist){
             return res.json({data : {msg : "Not wishlist yet plz add wishlist"},err : null ,code : 200})
         }
@@ -17,13 +17,14 @@ exports.getWishlistController= async (req,res)=>{
 // add wishlist by user
 exports.addWishlistController = async (req, res)=>{
     const userId = req.user._id
+    const productId = req.body.productId
     try {
         const newWishlist = new wishlistModel({
             product : req.body.productId,
              user :  userId,
         })
         await newWishlist.save()
-        res.json({ data : newWishlist, code : 200})
+        res.json({ msg: "add wishlist successfully",data : newWishlist, code : 200})
         
     } catch (error) {
         console.log( "error ",error)

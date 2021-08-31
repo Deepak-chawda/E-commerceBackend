@@ -5,7 +5,7 @@ exports.getOrderController = async (req,res)=>{
     console.log(userId)
     try {
         console.log("getOrder")
-        const findedOrder = await orderModel.findOne({user : userId})
+        const findedOrder = await orderModel.find({user : userId})
         console.log(findedOrder)
         if(!findedOrder){
             return res.json({data : {msg : "Not order yet plz place order"},err : null ,code : 200})

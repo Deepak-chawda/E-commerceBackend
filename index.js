@@ -16,10 +16,11 @@ app.use(cors());
 const userRouters = require("./routers/user/user.router");
 const productRoutes = require("./routers/product/product.routers");
 const orderRoutes = require("./routers/order/order.routes");
-const wishlistRoutes = require("./routers/wishlist/wishlist.routes")
+const wishlistRoutes = require("./routers/wishlist/wishlist.routes");
 app.use(userRouters);
 app.use(productRoutes);
 app.use(orderRoutes);
+app.use(wishlistRoutes);
 
 app.listen(port, () => {
   console.log(`server activated on port${port}....`);
