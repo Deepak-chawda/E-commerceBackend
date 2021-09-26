@@ -31,13 +31,10 @@ exports.signinController = async (req, res) => {
     // });
 
     //  here i am creating token asynchronously
-    const token = await jwt.sign(
-      { _id: user._id.toString() },
-      process.env.SECRET_KEY
-    );
+    const token = await jwt.sign({ _id: user._id.toString() }, process.env.SECRET_KEY);
     // don't send password for front end
     user.password = undefined;
-    res.status(200).json({ data: { user, token }, error: null, code: 200 });
+    res.status(200).json({ data: { user, token },msg: "login successfully", error: null, code: 200 });
   } catch (error) {
     console.log("error => ", error);
     res.json({ error: "Something went wrong", data: null, code: 500 });
@@ -58,10 +55,10 @@ exports.signupController = async (req, res) => {
       });
       const validateEmail = await UserModal.exists({ email: req.body.email });
       if (validateEmail) {
-        return res.json({
+        return res.status(403).json({
           error: "This email already present in database",
           data: null,
-          code: 404,
+          code: 403,
         });
       }
       // this is a sync function below convert in async function
@@ -75,6 +72,7 @@ exports.signupController = async (req, res) => {
       const hashedPassword = await bcrypt.hash(newUser.password, salt); //hash password +solt
       newUser.password = hashedPassword;
       await newUser.save();
+      newUser.password = undefined;
       res.json({ data: newUser, error: null, code: 200 });
     } else {
       const newUser = new UserModal({

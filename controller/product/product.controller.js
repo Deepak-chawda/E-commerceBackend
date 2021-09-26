@@ -1,11 +1,25 @@
 const productModel = require("../../models/product/product.model");
-// get product list
-exports.fetchProductController = async (req, res) => {
+// get product list by admin
+exports.fetchAdminProductController = async (req, res) => {
     const user =  req.user
   try {
     if(user.role !== "ADMIN"){
         return res.json({error : "Something went wrong ", data : null , code : 500})
     }
+  const productfetchedAdmin = await productModel.find()
+    res.json({ data: productfetchedAdmin , error: null, code: 200 });
+  } catch (error) {
+    console.log("error =>", error);
+    res.json({ error: "something went wrong", data: null, code: 500 });
+  }
+};
+// get product list by user
+exports.fetchUserProductController = async (req, res) => {
+    const user =  req.user
+  try {
+    if(user.role!== "USER"){
+      return res.json({error : "Access denied ", data : null , code : 500})
+  }
   const productfetched = await productModel.find()
     res.json({ data: productfetched , error: null, code: 200 });
   } catch (error) {
@@ -27,7 +41,7 @@ exports.addProductController = async (req, res) => {
       discription: req.body.discription,
     });
     await product.save();
-    res.json({ data: product, error: null, code: 200 });
+    res.json({ data: product,msg:"add product successfully", error: null, code: 200 });
   } catch (error) {
     console.log("error =>", error);
     res.json({ error: "something went wrong", data: null, code: 500 });

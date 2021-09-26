@@ -17,7 +17,7 @@ const orderSchema = new Schema({
   },
   user : {
       type : mongoose.Schema.Types.ObjectId,
-      ref : "User",
+      ref : "UserModal",
   }
 })
 const orderModel = model("orderModel", orderSchema);

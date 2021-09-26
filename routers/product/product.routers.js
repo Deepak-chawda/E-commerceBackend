@@ -1,19 +1,22 @@
 const router = require("express").Router();
 // require controller file here
 const {
-  fetchProductController,
+  fetchUserProductController,
+  fetchAdminProductController,
   addProductController,
   updateProductController,
   deleteProductController,
 } = require("../../controller/product/product.controller");
 const auth = require("../../middleware/auth")
-// fetch
-router.get("/api/get/product", auth, fetchProductController);
-// add
+// fetch user product
+router.get("/api/get/user/product", auth, fetchUserProductController);
+// fetch admin product 
+router.get("/api/get/admin/product", auth, fetchAdminProductController);
+// add product by admin
 router.post("/api/add/product", auth, addProductController);
-// update
+// update product by admin
 router.put("/api/update/product", auth, updateProductController);
-// delete
+// delete product by admin
 router.delete("/api/delete/product", auth, deleteProductController);
 
 // here exports all router for using other place
