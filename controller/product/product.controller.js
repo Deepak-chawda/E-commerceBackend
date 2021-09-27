@@ -78,3 +78,13 @@ exports.deleteProductController = async (req, res) => {
     res.json({ error: "something went wrong", data: null, code: 500 });
   }
 };
+// get product all without log in 
+exports.fetchAllProductController = async (req, res) => {
+try {
+const Allproductfetched = await productModel.find()
+  res.json({ data: Allproductfetched , error: null, code: 200 });
+} catch (error) {
+  console.log("error =>", error);
+  res.json({ error: "something went wrong", data: null, code: 500 });
+}
+};

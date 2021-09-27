@@ -35,6 +35,14 @@ exports.addWishlistController = async (req, res) => {
         .status(401)
         .json({ error: "Access denied ", data: null, code: 401 });
     }
+    const validateProduct = await wishlistModel.exists({ product: req.body.productId,user: req.body.user });
+      if (validateProduct) {
+        return res.status(403).json({
+          error: "this product already present in wish list",
+          data: null,
+          code: 403,
+        });
+      }
     const newWishlist = new wishlistModel({
       product: req.body.productId,
       user: req.body.user,

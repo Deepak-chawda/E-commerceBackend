@@ -14,7 +14,6 @@ const auth = require("../../middleware/auth");
 
 router.get("/api/get/order", auth, getOrderController);
 router.post("/api/add/order", auth, addOrderController);
-// router.put("/api/update/order", auth, updateOrderController);
 router.delete("/api/delete/order", auth, deleteOrderController);
 
 // here exports all router for using other place

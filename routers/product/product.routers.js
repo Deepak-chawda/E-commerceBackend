@@ -6,6 +6,7 @@ const {
   addProductController,
   updateProductController,
   deleteProductController,
+  fetchAllProductController
 } = require("../../controller/product/product.controller");
 const auth = require("../../middleware/auth")
 // fetch user product
@@ -18,6 +19,8 @@ router.post("/api/add/product", auth, addProductController);
 router.put("/api/update/product", auth, updateProductController);
 // delete product by admin
 router.delete("/api/delete/product", auth, deleteProductController);
+// fetch all product without log in 
+router.get("/api/get/all/product", fetchAllProductController);
 
 // here exports all router for using other place
 module.exports = router;
