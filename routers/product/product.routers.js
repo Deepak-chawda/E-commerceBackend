@@ -10,7 +10,7 @@ const {
 } = require("../../controller/product/product.controller");
 const auth = require("../../middleware/auth")
 // fetch user product
-router.get("/api/get/user/product", auth, fetchUserProductController);
+router.get("/api/get/user/product", fetchUserProductController);
 // fetch admin product 
 router.get("/api/get/admin/product", auth, fetchAdminProductController);
 // add product by admin

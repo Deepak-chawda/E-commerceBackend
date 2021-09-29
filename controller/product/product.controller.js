@@ -4,7 +4,7 @@ exports.fetchAdminProductController = async (req, res) => {
     const user =  req.user
   try {
     if(user.role !== "ADMIN"){
-        return res.json({error : "Something went wrong ", data : null , code : 500})
+        return res.json({error : "Access denied ", data : null , code : 500})
     }
   const productfetchedAdmin = await productModel.find()
     res.json({ data: productfetchedAdmin , error: null, code: 200 });
@@ -17,9 +17,9 @@ exports.fetchAdminProductController = async (req, res) => {
 exports.fetchUserProductController = async (req, res) => {
     const user =  req.user
   try {
-    if(user.role!== "USER"){
-      return res.json({error : "Access denied ", data : null , code : 500})
-  }
+  //   if(user.role!== "USER"){
+  //     return res.json({error : "Access denied ", data : null , code : 500})
+  // }
   const productfetched = await productModel.find()
     res.json({ data: productfetched , error: null, code: 200 });
   } catch (error) {
