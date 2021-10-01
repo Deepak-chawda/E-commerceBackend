@@ -11,7 +11,7 @@ exports.getOrderController = async (req, res) => {
     }
     const findedOrder = await orderModel
       .find({ user: user._id })
-      .populate("product")
+      .populate("product");
     //   .populate("user");
     // console.log(findedOrder)
     if (!findedOrder) {
@@ -21,6 +21,7 @@ exports.getOrderController = async (req, res) => {
         code: 200,
       });
     }
+    console.log("finded Order =", findedOrder);
     res.json({ data: findedOrder, err: null, code: 200 });
   } catch (error) {
     console.log("error ", error);
@@ -35,15 +36,26 @@ exports.addOrderController = async (req, res) => {
     if (user.role !== "USER") {
       return res.json({ error: "Access denied", data: null, code: 500 });
     }
+    const validateOrder = await orderModel.exists({
+      product: req.body.product,
+      user: req.body.user,
+    });
+    if (validateOrder) {
+      return res.status(403).json({
+        error: "This product already present in order list",
+        data: null,
+        code: 403,
+      });
+    }
     const newOrder = new orderModel({
       product: req.body.product,
       orderDate: req.body.orderDate,
       transactionId: req.body.transactionId,
       address: req.body.address,
-      user : req.body.user,
+      user: req.body.user,
     });
     await newOrder.save();
-    res.json({ data: newOrder,msg:"order placed successfully", code: 200 });
+    res.json({ data: newOrder, msg: "order placed successfully", code: 200 });
   } catch (error) {
     console.log("error ", error);
     res.json({ error: "something went wrong", data: null, code: 500 });

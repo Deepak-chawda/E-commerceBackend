@@ -54,6 +54,7 @@ exports.signupController = async (req, res) => {
         userName:req.body.userName,
         address:req.body.address,
         contact : req.body.contact,
+        profilePic:req.body.profilePic,
         role: "USER",
       });
       const validateEmail = await UserModal.exists({ email: req.body.email });
