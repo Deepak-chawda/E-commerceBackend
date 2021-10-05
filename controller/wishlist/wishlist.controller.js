@@ -38,7 +38,7 @@ exports.addWishlistController = async (req, res) => {
     const validateProduct = await wishlistModel.exists({ product: req.body.productId,user: req.body.user });
       if (validateProduct) {
         return res.status(403).json({
-          error: "this product already present in wish list",
+          error: "This product already present in wish list",
           data: null,
           code: 403,
         });
@@ -49,7 +49,7 @@ exports.addWishlistController = async (req, res) => {
     });
     await newWishlist.save();
     res.json({
-      msg: "add wishlist successfully",
+      msg: "Added successfully in wishlist",
       data: newWishlist,
       code: 200,
     });

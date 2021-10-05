@@ -13,15 +13,15 @@ exports.getOrderController = async (req, res) => {
       .find({ user: user._id })
       .populate("product");
     //   .populate("user");
-    // console.log(findedOrder)
-    if (!findedOrder) {
-      return res.json({
-        data: { msg: "Not order yet plz place order" },
-        err: null,
-        code: 200,
-      });
-    }
-    console.log("finded Order =", findedOrder);
+    console.log(findedOrder)
+    // if (findedOrder ===[]) {
+    //   return res.json({
+    //     data: { msg: "Not order yet plz place order" },
+    //     err: null,
+    //     code: 200,
+    //   });
+    // }
+    // console.log("finded Order =", findedOrder);
     res.json({ data: findedOrder, err: null, code: 200 });
   } catch (error) {
     console.log("error ", error);

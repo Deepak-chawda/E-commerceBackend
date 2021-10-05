@@ -24,17 +24,27 @@ exports.signinController = async (req, res) => {
     if (!comparePassword)
       return res
         .status(400)
-        .json({ error: "Invalid password ", data: null, code: 404 });
+        .json({ error: "Invalid user password ", data: null, code: 404 });
 
     // jwt.sign({ foo: 'bar' }, privateKey, { algorithm: 'RS256' }, function(err, token) {
     //   console.log(token);
     // });
 
     //  here i am creating token asynchronously
-    const token = await jwt.sign({ _id: user._id.toString() }, process.env.SECRET_KEY);
+    const token = await jwt.sign(
+      { _id: user._id.toString() },
+      process.env.SECRET_KEY
+    );
     // don't send password for front end
     user.password = undefined;
-    res.status(200).json({ data: { user, token },msg: "login successfully", error: null, code: 200 });
+    res
+      .status(200)
+      .json({
+        data: { user, token },
+        msg: "login successfully",
+        error: null,
+        code: 200,
+      });
   } catch (error) {
     console.log("error => ", error);
     res.json({ error: "Something went wrong", data: null, code: 500 });
@@ -51,10 +61,10 @@ exports.signupController = async (req, res) => {
       const newUser = new UserModal({
         email: req.body.email,
         password: req.body.password,
-        userName:req.body.userName,
-        address:req.body.address,
-        contact : req.body.contact,
-        profilePic:req.body.profilePic,
+        userName: req.body.userName,
+        address: req.body.address,
+        contact: req.body.contact,
+        profilePic: req.body.profilePic,
         role: "USER",
       });
       const validateEmail = await UserModal.exists({ email: req.body.email });
@@ -101,6 +111,33 @@ exports.signupController = async (req, res) => {
     console.log("error => ", error);
     res.json({
       error: "Something  went wrong",
+      data: null,
+      code: 500,
+    });
+  }
+};
+// here is a edit user profile controller
+exports.editUserController = async (req, res) => {
+  const userId = req.query._id;
+  const UpdateBody = req.body;
+  // console.log("update boday backend", UpdateBoday,userId);
+  try {
+    const edited = await UserModal.findByIdAndUpdate(
+      { _id: userId },
+      { $set :UpdateBody },
+      { new: true}
+    );
+    edited.password =undefined
+    res.json({
+      data: edited,
+      error: null,
+      code: 200,
+      msg: "Edited user details successfull",
+    });
+  } catch (error) {
+    console.log("error => ", error);
+    res.json({
+      error: "something went wrong",
       data: null,
       code: 500,
     });

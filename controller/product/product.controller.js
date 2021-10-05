@@ -41,7 +41,7 @@ exports.addProductController = async (req, res) => {
       discription: req.body.discription,
     });
     await product.save();
-    res.json({ data: product,msg:"add product successfully", error: null, code: 200 });
+    res.json({ data: product,msg:"Added product successfully", error: null, code: 200 });
   } catch (error) {
     console.log("error =>", error);
     res.json({ error: "something went wrong", data: null, code: 500 });
@@ -49,15 +49,17 @@ exports.addProductController = async (req, res) => {
 };
 // update product list by admin
 exports.updateProductController = async (req, res) => {
-    const user =  req.user
+    //this is for require role  
+  const user =  req.user
     const getbody = req.body
     const getId = req.query._id
   try {
     if(user.role !== "ADMIN"){
-        return res.json({error : "Something went wrong ", data : null , code : 500})
+         res.json({error : "Something went wrong ", data : null , code : 500})
+    }else{
+    await productModel.findByIdAndUpdate(  { _id: getId }, {$set:getbody}, { new: true } )
+    res.json({msg : "Data updated successfully", error: null, code: 200 });
     }
-      await productModel.findByIdAndUpdate(  { _id: getId }, {$set:getbody}, { new: true } )
-    res.json({msg : "update successfully data", error: null, code: 200 });
   } catch (error) {
     console.log("error =>", error);
     res.json({ error: "something went wrong", data: null, code: 500 });
