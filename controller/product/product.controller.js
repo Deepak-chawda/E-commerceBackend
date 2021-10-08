@@ -1,4 +1,6 @@
 const productModel = require("../../models/product/product.model");
+// here require cloudnary file for image upload
+const {cloudinary} = require("../../Cloudenary/cloudnary")
 // get product list by admin
 exports.fetchAdminProductController = async (req, res) => {
     const user =  req.user
@@ -30,14 +32,22 @@ exports.fetchUserProductController = async (req, res) => {
 // add product in data base by admin
 exports.addProductController = async (req, res) => {
     const user =  req.user
+    // console.log("body",req.body.picture)
   try {
       if(user.role !== "ADMIN"){
           return res.json({error : "Something went wrong ", data : null , code : 500})
       }
+      // this code for cloudnary image upload
+      const uploadImage = await cloudinary.uploader.upload(req.body.picture,{
+
+        upload_preset : "test-media",
+      })
+    // console.log("uploaded url =",uploadImage.secure_url)
+
     const product = new productModel({
       productName: req.body.productName,
       price: req.body.price,
-      picture: null,
+      picture: uploadImage.secure_url,
       discription: req.body.discription,
     });
     await product.save();
@@ -57,6 +67,11 @@ exports.updateProductController = async (req, res) => {
     if(user.role !== "ADMIN"){
          res.json({error : "Something went wrong ", data : null , code : 500})
     }else{
+         // this code for cloudnary image upload
+         const uploadImage = await cloudinary.uploader.upload(getbody.picture,{
+          upload_preset : "test-media",
+        })
+        getbody.picture =uploadImage.secure_url
     await productModel.findByIdAndUpdate(  { _id: getId }, {$set:getbody}, { new: true } )
     res.json({msg : "Data updated successfully", error: null, code: 200 });
     }
@@ -85,7 +100,7 @@ exports.fetchAllProductController = async (req, res) => {
 try {
 const Allproductfetched = await productModel.find()
   res.json({ data: Allproductfetched , error: null, code: 200 });
-} catch (error) {
+}catch (error) {
   console.log("error =>", error);
   res.json({ error: "something went wrong", data: null, code: 500 });
 }

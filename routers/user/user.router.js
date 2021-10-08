@@ -1,5 +1,5 @@
 // here require router method from express 
-const router = require("express").Router();
+const router = require("express").Router()
 
 // require  all controller here  as a object 
 const {signupController, signinController,editUserController }=require ("../../controller/user/user.controller")

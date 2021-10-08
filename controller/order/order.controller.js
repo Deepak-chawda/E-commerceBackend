@@ -4,7 +4,7 @@ exports.getOrderController = async (req, res) => {
   const user = req.user;
   // console.log(userId)
   try {
-    if (user.role !== "USER") {
+    if (user.role !=="USER") {
       return res
         .status(401)
         .json({ error: "Access denied ", data: null, code: 401 });
@@ -13,14 +13,6 @@ exports.getOrderController = async (req, res) => {
       .find({ user: user._id })
       .populate("product");
     //   .populate("user");
-    console.log(findedOrder)
-    // if (findedOrder ===[]) {
-    //   return res.json({
-    //     data: { msg: "Not order yet plz place order" },
-    //     err: null,
-    //     code: 200,
-    //   });
-    // }
     // console.log("finded Order =", findedOrder);
     res.json({ data: findedOrder, err: null, code: 200 });
   } catch (error) {
@@ -34,7 +26,7 @@ exports.addOrderController = async (req, res) => {
   const user = req.user;
   try {
     if (user.role !== "USER") {
-      return res.json({ error: "Access denied", data: null, code: 500 });
+      return res.status(401).json({ error: " Access denied ", data: null, code: 500 });
     }
     const validateOrder = await orderModel.exists({
       product: req.body.product,

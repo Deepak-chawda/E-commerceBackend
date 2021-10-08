@@ -9,8 +9,11 @@ const cors = require("cors");
 require("./connection/connectionDB");
 
 // testing by myself
-app.use(express.json());
 app.use(cors());
+app.use(express.json({ limit : "50mb" }));
+// this predefine middleware use for image uploading
+app.use(express.urlencoded({limit : "50mb",extended : true }))
+
 
 // require all routes here
 const userRouters = require("./routers/user/user.router");
