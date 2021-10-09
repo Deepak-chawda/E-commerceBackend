@@ -1,15 +1,15 @@
 const productModel = require("../../models/product/product.model");
 // here require cloudnary file for image upload
-const {cloudinary} = require("../../Cloudenary/cloudnary")
+const { cloudinary } = require("../../Cloudenary/cloudnary");
 // get product list by admin
 exports.fetchAdminProductController = async (req, res) => {
-    const user =  req.user
+  const user = req.user;
   try {
-    if(user.role !== "ADMIN"){
-        return res.json({error : "Access denied ", data : null , code : 500})
+    if (user.role !== "ADMIN") {
+      return res.json({ error: "Access denied ", data: null, code: 500 });
     }
-  const productfetchedAdmin = await productModel.find()
-    res.json({ data: productfetchedAdmin , error: null, code: 200 });
+    const productfetchedAdmin = await productModel.find();
+    res.json({ data: productfetchedAdmin, error: null, code: 200 });
   } catch (error) {
     console.log("error =>", error);
     res.json({ error: "something went wrong", data: null, code: 500 });
@@ -17,13 +17,13 @@ exports.fetchAdminProductController = async (req, res) => {
 };
 // get product list by user
 exports.fetchUserProductController = async (req, res) => {
-    const user =  req.user
+  const user = req.user;
   try {
-  //   if(user.role!== "USER"){
-  //     return res.json({error : "Access denied ", data : null , code : 500})
-  // }
-  const productfetched = await productModel.find()
-    res.json({ data: productfetched , error: null, code: 200 });
+    //   if(user.role!== "USER"){
+    //     return res.json({error : "Access denied ", data : null , code : 500})
+    // }
+    const productfetched = await productModel.find();
+    res.json({ data: productfetched, error: null, code: 200 });
   } catch (error) {
     console.log("error =>", error);
     res.json({ error: "something went wrong", data: null, code: 500 });
@@ -31,27 +31,35 @@ exports.fetchUserProductController = async (req, res) => {
 };
 // add product in data base by admin
 exports.addProductController = async (req, res) => {
-    const user =  req.user
-    // console.log("body",req.body.picture)
+  const user = req.user;
+  // console.log("body",req.body.picture)
   try {
-      if(user.role !== "ADMIN"){
-          return res.json({error : "Something went wrong ", data : null , code : 500})
-      }
-      // this code for cloudnary image upload
-      const uploadImage = await cloudinary.uploader.upload(req.body.picture,{
-
-        upload_preset : "test-media",
-      })
-    // console.log("uploaded url =",uploadImage.secure_url)
-
+    if (user.role !== "ADMIN") {
+      return res.json({
+        error: "Something went wrong ",
+        data: null,
+        code: 500,
+      });
+    }
+    // this code for cloudnary image upload
+    const uploadImage = await cloudinary.uploader.upload(req.body.picture, {
+      upload_preset: "test-media",
+    });
+    // console.log("uploaded url =",uploadImage)
     const product = new productModel({
       productName: req.body.productName,
       price: req.body.price,
       picture: uploadImage.secure_url,
+      cloudinary_id: uploadImage.public_id,
       discription: req.body.discription,
     });
     await product.save();
-    res.json({ data: product,msg:"Added product successfully", error: null, code: 200 });
+    res.json({
+      data: product,
+      msg: "Added product successfully",
+      error: null,
+      code: 200,
+    });
   } catch (error) {
     console.log("error =>", error);
     res.json({ error: "something went wrong", data: null, code: 500 });
@@ -59,21 +67,44 @@ exports.addProductController = async (req, res) => {
 };
 // update product list by admin
 exports.updateProductController = async (req, res) => {
-    //this is for require role  
-  const user =  req.user
-    const getbody = req.body
-    const getId = req.query._id
+  //this is for require role
+  const user = req.user;
+  const getbody = req.body;
+  const getId =  req.query._id;
+  const cloudId = req.query.cloudId;
   try {
-    if(user.role !== "ADMIN"){
-         res.json({error : "Something went wrong ", data : null , code : 500})
-    }else{
-         // this code for cloudnary image upload
-         const uploadImage = await cloudinary.uploader.upload(getbody.picture,{
-          upload_preset : "test-media",
+    if (user.role !== "ADMIN") {
+      res.json({ error: "Something went wrong ", data: null, code: 500 });
+    } else {
+      // first delete image from cloudnary
+      await cloudinary.uploader
+        .destroy(cloudId)
+        .then((result) => {
+          // response.status(200).send({
+          //   message: "success",
+          //   result,
+          // });
+          console.log("image detelet and updated successfully");
         })
-        getbody.picture =uploadImage.secure_url
-    await productModel.findByIdAndUpdate(  { _id: getId }, {$set:getbody}, { new: true } )
-    res.json({msg : "Data updated successfully", error: null, code: 200 });
+        .catch((error) => {
+          // response.status(500).send({
+          //   message: "Failure",
+          //   error,
+          // });
+          console.log("failed delete");
+        });
+      // this code for cloudnary image upload
+      const uploadImage = await cloudinary.uploader.upload(getbody.picture, {
+        upload_preset: "test-media",
+      });
+      getbody.picture = uploadImage.secure_url;
+      // getbody.cloudinary_id =uploadImage.public_id
+      await productModel.findByIdAndUpdate(
+        { _id: getId },
+        { $set: getbody },
+        { new: true }
+      );
+      res.json({ msg: "Data updated successfully", error: null, code: 200 });
     }
   } catch (error) {
     console.log("error =>", error);
@@ -82,26 +113,51 @@ exports.updateProductController = async (req, res) => {
 };
 // delete product item by admin
 exports.deleteProductController = async (req, res) => {
-    const user =  req.user
-    const productId = req.query._id
+  const user = req.user;
+  const productId = req.query._id;
+  const imageId = req.query.imgId;
   try {
-    if(user.role !== "ADMIN"){
-        return res.json({error : "Something went wrong ", data : null , code : 500})
+    if (user.role !== "ADMIN") {
+      return res.json({
+        error: "Something went wrong ",
+        data: null,
+        code: 500,
+      });
     }
-     await productModel.findByIdAndDelete({ _id : productId })
-    res.json({ msg : "Successfully delete from database" , error: null, code: 200 });
+    await cloudinary.uploader
+      .destroy(imageId)
+      .then((result) => {
+        // response.status(200).send({
+        //   message: "success",
+        //   result,
+        // });
+        console.log("image deleted successfully");
+      })
+      .catch((error) => {
+        // response.status(500).send({
+        //   message: "Failure",
+        //   error,
+        // });
+        console.log("failed delete");
+      });
+    await productModel.findByIdAndDelete({ _id: productId });
+    res.json({
+      msg: "Successfully delete from database",
+      error: null,
+      code: 200,
+    });
   } catch (error) {
     console.log("error =>", error);
     res.json({ error: "something went wrong", data: null, code: 500 });
   }
 };
-// get product all without log in 
+// get product all without log in
 exports.fetchAllProductController = async (req, res) => {
-try {
-const Allproductfetched = await productModel.find()
-  res.json({ data: Allproductfetched , error: null, code: 200 });
-}catch (error) {
-  console.log("error =>", error);
-  res.json({ error: "something went wrong", data: null, code: 500 });
-}
+  try {
+    const Allproductfetched = await productModel.find();
+    res.json({ data: Allproductfetched, error: null, code: 200 });
+  } catch (error) {
+    console.log("error =>", error);
+    res.json({ error: "something went wrong", data: null, code: 500 });
+  }
 };

@@ -18,7 +18,7 @@ router.post("/api/add/product", auth, addProductController);
 // update product by admin
 router.put("/api/update/product", auth, updateProductController);
 // delete product by admin
-router.delete("/api/delete/product", auth, deleteProductController);
+router.delete("/api/delete/product/", auth, deleteProductController);
 // fetch all product without log in 
 router.get("/api/get/all/product", fetchAllProductController);
 

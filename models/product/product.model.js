@@ -15,6 +15,9 @@ const productSchema = new Schema({
   picture: { 
     type: String,
   },
+  cloudinary_id : {
+    type : String
+  },
   discription: {
     type: String,
   },

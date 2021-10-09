@@ -24,6 +24,9 @@ const userSchema = new Schema({
     contact : {
         type : String,
     },
+    cloudinary_id : {
+        type : String
+      },
     role : {
         type : String,   // user , admin
     }

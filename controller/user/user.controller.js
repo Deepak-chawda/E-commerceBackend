@@ -1,4 +1,6 @@
 require("dotenv").config({ path: "../../.env" });
+// here require cloudnary file for image upload
+const { cloudinary } = require("../../Cloudenary/cloudnary");
 // here require UserModel
 const UserModal = require("../../models/user/user.model");
 //  here i am require bcrypt package for change password to hash function
@@ -37,14 +39,12 @@ exports.signinController = async (req, res) => {
     );
     // don't send password for front end
     user.password = undefined;
-    res
-      .status(200)
-      .json({
-        data: { user, token },
-        msg: "login successfully",
-        error: null,
-        code: 200,
-      });
+    res.status(200).json({
+      data: { user, token },
+      msg: "login successfully",
+      error: null,
+      code: 200,
+    });
   } catch (error) {
     console.log("error => ", error);
     res.json({ error: "Something went wrong", data: null, code: 500 });
@@ -65,6 +65,7 @@ exports.signupController = async (req, res) => {
         address: req.body.address,
         contact: req.body.contact,
         profilePic: req.body.profilePic,
+        cloudinary_id: req.body.cloudinary_id,
         role: "USER",
       });
       const validateEmail = await UserModal.exists({ email: req.body.email });
@@ -115,19 +116,71 @@ exports.signupController = async (req, res) => {
       code: 500,
     });
   }
+
+// auto generet mail when user register this site first time
+  const nodemailer = require("nodemailer");
+   // send email when login
+    var transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.DeveloperMail,
+        pass: process.env.DevloperPass,
+      },
+    });
+
+    var mailOptions = {
+      from: process.env.DeveloperMail,
+      to: req.body.email,
+      subject: "Auto email SignUp Message",
+      text: `Hello ${req.body.userName} , Regards from admin Deepak chawda . Thank You for Joining Iphone store . Please continue your shopping `,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    });
 };
+
 // here is a edit user profile controller
 exports.editUserController = async (req, res) => {
   const userId = req.query._id;
   const UpdateBody = req.body;
-  // console.log("update boday backend", UpdateBoday,userId);
+  const cloudId = req.query.cloudId;
   try {
+    if (!cloudId==null) {
+      console.log("hello")
+      await cloudinary.uploader
+        .destroy(cloudId)
+        .then((result) => {
+          // response.status(200).send({
+          //   message: "success",
+          //   result,
+          // });
+          console.log("image detelet and updated successfully");
+        })
+        .catch((error) => {
+          // response.status(500).send({
+          //   message: "Failure",
+          //   error,
+          // });
+          console.log("failed delete");
+        });  
+    }
+      // this code for cloudnary image upload
+      const uploadImage = await cloudinary.uploader.upload(UpdateBody.profilePic, {
+        upload_preset: "user-profile-image",
+      });
+      UpdateBody.cloudinary_id =uploadImage.public_id
+      UpdateBody.profilePic= uploadImage.secure_url;
     const edited = await UserModal.findByIdAndUpdate(
       { _id: userId },
-      { $set :UpdateBody },
-      { new: true}
+      { $set: UpdateBody },
+      { new: true }
     );
-    edited.password =undefined
+    edited.password = undefined;
     res.json({
       data: edited,
       error: null,
