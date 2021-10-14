@@ -7,6 +7,8 @@ const UserModal = require("../../models/user/user.model");
 var bcrypt = require("bcryptjs");
 // here i am require jsonwebtoken package to create tokon
 var jwt = require("jsonwebtoken");
+// check  emailExistence
+
 // here is a signin logic
 exports.signinController = async (req, res) => {
   try {
@@ -68,6 +70,25 @@ exports.signupController = async (req, res) => {
         cloudinary_id: req.body.cloudinary_id,
         role: "USER",
       });
+      // console.log(req.body.email);
+      // var emailCheck = require('email-check');
+
+      // // Quick version
+      // await emailCheck('deepakchawda9696kdjfkjlk@gmail.com')
+      //   .then(function (res) {
+      //     // Returns "true" if the email address exists, "false" if it doesn't.
+      //     console.log("mail valid",res)
+      //   })
+      //   .catch(function (err) {
+      //     if (err.message === 'refuse') {
+      //       // The MX server is refusing requests from your IP address.
+      //       console.log("helloddd")
+      //     } else {
+      //       // Decide what to do with other errors.
+      //       console.log("decide")
+      //     }
+      //   });
+
       const validateEmail = await UserModal.exists({ email: req.body.email });
       if (validateEmail) {
         return res.status(403).json({
@@ -89,6 +110,39 @@ exports.signupController = async (req, res) => {
       await newUser.save();
       newUser.password = undefined;
       res.json({ data: newUser, error: null, code: 200 });
+
+       // auto generet mail when user register this site first time
+    // const nodemailer = require("nodemailer");
+    // send email when login
+    //  var transporter = nodemailer.createTransport({
+    //   host: "smtp.gmail.com",
+    //   port: 587,
+    //   secure: false,
+    //   requireTLS: true,
+    //    service: "gmail",
+    //    auth: {
+    //      user: process.env.DeveloperMail,
+    //      pass: process.env.DevloperPass,
+    //    },
+    //  });
+    //  console.log(process.env.DeveloperMail)
+    //  console.log(process.env.DevloperPass)
+
+    //  var mailOptions = {
+    //    from: process.env.DeveloperMail,
+    //    to: req.body.email,
+    //    subject: "Auto email SignUp Message",
+    //    text: `Hello ${req.body.userName} , Regards from admin Deepak chawda . Thank You for Joining Iphone store . Please continue your shopping `,
+    //  };
+
+    //  transporter.sendMail(mailOptions, function (error, info) {
+    //    if (error) {
+    //      console.log(error);
+    //    } else {
+    //      console.log("Email sent: " + info.response);
+    //    }
+    //  });
+
     } else {
       const newUser = new UserModal({
         email: req.body.email,
@@ -105,6 +159,7 @@ exports.signupController = async (req, res) => {
       const salt = await bcrypt.genSalt(); // create password solt
       const hashedPassword = await bcrypt.hash(newUser.password, salt); //hash password +solt
       newUser.password = hashedPassword;
+
       await newUser.save();
       res.json({ data: newUser, error: null, code: 200 });
     }
@@ -117,31 +172,6 @@ exports.signupController = async (req, res) => {
     });
   }
 
-// auto generet mail when user register this site first time
-  const nodemailer = require("nodemailer");
-   // send email when login
-    var transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.DeveloperMail,
-        pass: process.env.DevloperPass,
-      },
-    });
-
-    var mailOptions = {
-      from: process.env.DeveloperMail,
-      to: req.body.email,
-      subject: "Auto email SignUp Message",
-      text: `Hello ${req.body.userName} , Regards from admin Deepak chawda . Thank You for Joining Iphone store . Please continue your shopping `,
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email sent: " + info.response);
-      }
-    });
 };
 
 // here is a edit user profile controller
@@ -150,8 +180,8 @@ exports.editUserController = async (req, res) => {
   const UpdateBody = req.body;
   const cloudId = req.query.cloudId;
   try {
-    if (!cloudId==null) {
-      console.log("hello")
+    if (!cloudId == null) {
+      console.log("hello");
       await cloudinary.uploader
         .destroy(cloudId)
         .then((result) => {
@@ -167,14 +197,17 @@ exports.editUserController = async (req, res) => {
           //   error,
           // });
           console.log("failed delete");
-        });  
+        });
     }
-      // this code for cloudnary image upload
-      const uploadImage = await cloudinary.uploader.upload(UpdateBody.profilePic, {
+    // this code for cloudnary image upload
+    const uploadImage = await cloudinary.uploader.upload(
+      UpdateBody.profilePic,
+      {
         upload_preset: "user-profile-image",
-      });
-      UpdateBody.cloudinary_id =uploadImage.public_id
-      UpdateBody.profilePic= uploadImage.secure_url;
+      }
+    );
+    UpdateBody.cloudinary_id = uploadImage.public_id;
+    UpdateBody.profilePic = uploadImage.secure_url;
     const edited = await UserModal.findByIdAndUpdate(
       { _id: userId },
       { $set: UpdateBody },
@@ -196,3 +229,105 @@ exports.editUserController = async (req, res) => {
     });
   }
 };
+exports.getUserController= async(req,res)=>{
+  const UId = req.query._id
+  try {
+    const findUser = await UserModal.findById({ _id : UId })
+    if(!findUser){
+      return res.status(404).json({
+        error: "we unable to find user",
+        data : null,
+        code:500
+      })
+    }
+    findUser.password = undefined;
+    res.json({
+      data: findUser,
+      error: null,
+      code: 200,
+      msg: "user find successfully",
+    });
+  } catch (error) {
+    console.log("error => ", error);
+    res.json({
+      error: "something went wrong",
+      data: null,
+      code: 500,
+    });
+  }   
+  }
+exports.finderMail =async(req,res)=>{
+  try {
+   
+    const mailexistOrNot = await UserModal.exists({email:req.body.email})
+    if(!mailexistOrNot){
+      return res.json({
+        msg: "This mail is not exists in data base",
+        error : null,
+        code : 400
+      })
+    }
+    const user = await UserModal.findOne({ email: req.body.email });
+    // res.json({
+    //   error:null,
+    //   data : user,
+    //   msg : "user found"
+    // })
+    console.log(user._id)
+    
+    //  here i am creating token asynchronously
+    const token = await jwt.sign(
+      { _id: user._id.toString() },
+      process.env.SECRET_KEY
+    );
+    // console.log(token)
+    var fullUrl = req.protocol + `://api/forgetPass?token=${token}` 
+    console.log(fullUrl)
+      // auto generet mail when user register this site first time
+    const nodemailer = require("nodemailer");
+     var transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      requireTLS: true,
+       service: "gmail",
+       auth: {
+         user: process.env.DeveloperMail,
+         pass: process.env.DevloperPass,
+       },
+     });
+    //  console.log(process.env.DeveloperMail)
+    //  console.log(process.env.DevloperPass)
+     var mailOptions = {
+       from: process.env.DeveloperMail,
+       to: req.body.email,
+       subject: "Reset or Forget your Iphone email",
+       text: `Please click this email to reset your password ............:${fullUrl}`,
+      path : ` forget passs`,
+      html: `<b>Please click this email to reset your password ${fullUrl}</b>`,
+     };
+
+    await transporter.sendMail(mailOptions, function (error, info) {
+       if (error) {
+         console.log(error);
+       } else {
+         res.json({
+           error : null,
+           code : 200,
+           msg : "Email sent successfully"
+         })
+         console.log("Email sent: " + info.response);
+       }
+     });
+    // const user = await UserModal.findOne({ email: req.query.d });
+    // res.json({
+    //   error:null,
+    //   data : user,
+    //   msg : "user found"
+    // })
+    
+  } catch (error) {
+    console.log("error",error)
+  }
+}
+
