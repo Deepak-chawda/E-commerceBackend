@@ -32,6 +32,8 @@ exports.fetchUserProductController = async (req, res) => {
 // add product in data base by admin
 exports.addProductController = async (req, res) => {
   const user = req.user;
+  const cap = req.body.category
+  const newCap =cap.charAt(0).toUpperCase() + cap.slice(1)
   // console.log("body",req.body.picture)
   try {
     if (user.role !== "ADMIN") {
@@ -52,6 +54,7 @@ exports.addProductController = async (req, res) => {
       picture: uploadImage.secure_url,
       cloudinary_id: uploadImage.public_id,
       discription: req.body.discription,
+      category : newCap
     });
     await product.save();
     res.json({
@@ -161,3 +164,36 @@ exports.fetchAllProductController = async (req, res) => {
     res.json({ error: "something went wrong", data: null, code: 500 });
   }
 };
+// get category wise product 
+exports.fetchCatagoryProductController = async(req,res)=>{
+  try {
+    let categoryid = req.params.category
+    // console.log("getSpecial category",categoryid)
+    if(!categoryid)
+    {
+      return res.json({
+        err : "parma is not available in path",
+        data : null,
+        code : 404
+      })
+    }
+   
+    const categoryWiseProductFetched = await productModel.find({category : categoryid})
+    // console.log("categoryWiseProductFetched",categoryWiseProductFetched)
+    if(!categoryWiseProductFetched){
+      return res.status(200).json({
+        err : "This types of product not available",
+        data : null,
+        code : 404 
+      })
+    }
+    res.json({
+      data : categoryWiseProductFetched,
+      err : null,
+      code : 200
+    })
+  } catch (error) {
+    console.log("error =>", error);
+    res.json({ error: "something went wrong", data: null, code: 500 });
+  }
+}

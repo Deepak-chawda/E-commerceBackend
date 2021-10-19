@@ -21,6 +21,9 @@ const productSchema = new Schema({
   discription: {
     type: String,
   },
+  category : {
+    type : String,
+  }
 });
 
 const productModel = model("productModel", productSchema);

@@ -6,7 +6,8 @@ const {
   addProductController,
   updateProductController,
   deleteProductController,
-  fetchAllProductController
+  fetchAllProductController,
+  fetchCatagoryProductController
 } = require("../../controller/product/product.controller");
 const auth = require("../../middleware/auth")
 // fetch user product
@@ -21,6 +22,8 @@ router.put("/api/update/product", auth, updateProductController);
 router.delete("/api/delete/product/", auth, deleteProductController);
 // fetch all product without log in 
 router.get("/api/get/all/product", fetchAllProductController);
+// 
+router.get("/api/get/category/product/:category", fetchCatagoryProductController);
 
 // here exports all router for using other place
 module.exports = router;
