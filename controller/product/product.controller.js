@@ -18,12 +18,17 @@ exports.fetchAdminProductController = async (req, res) => {
 // get product list by user
 exports.fetchUserProductController = async (req, res) => {
   const user = req.user;
+  const page = req.query.page
+  const limit = req.query.limit
   try {
     //   if(user.role!== "USER"){
     //     return res.json({error : "Access denied ", data : null , code : 500})
     // }
     const productfetched = await productModel.find();
-    res.json({ data: productfetched, error: null, code: 200 });
+    const startIndex = (page-1)*limit
+    const endIndex = page*limit
+    const productfetcheds= productfetched.slice(startIndex,endIndex)
+    res.json({ data: productfetcheds, error: null, code: 200 });
   } catch (error) {
     console.log("error =>", error);
     res.json({ error: "something went wrong", data: null, code: 500 });
