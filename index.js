@@ -10,9 +10,9 @@ require("./connection/connectionDB");
 
 // testing by myself
 app.use(cors());
-app.use(express.json({ limit : "50mb" }));
+app.use(express.json({ limit: "50mb" }));
 // this predefine middleware use for image uploading
-app.use(express.urlencoded({limit : "50mb",extended : true }))
+app.use(express.urlencoded({ limit: "50mb", extended: true }))
 
 
 // require all routes here

@@ -1,0 +1,7 @@
+[build]
+base = "/"
+publish = "public"
+functions = "functions"
+command = "npm run build"  # Modify this based on your setup
+[build.environment]
+NODE_VERSION = "14"
